@@ -138,3 +138,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = "static/"
+
+# Price update interval (minutes). Offers with last_checked_at older than this are updated.
+PRICE_UPDATE_INTERVAL_MINUTES = int(
+    os.environ.get("PRICE_UPDATE_INTERVAL_MINUTES", "30")
+)
