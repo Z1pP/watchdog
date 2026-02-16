@@ -1,6 +1,12 @@
 from django.contrib import admin
 
-from .models import Marketplace, PriceHistory, Product, ProductOffer
+from .models import (
+    Marketplace,
+    PriceHistory,
+    Product,
+    ProductOffer,
+    ProductSubscription,
+)
 
 
 @admin.register(Marketplace)
@@ -48,3 +54,19 @@ class PriceHistoryAdmin(admin.ModelAdmin):
     search_fields = ["offer__product__name", "offer__external_id"]
     autocomplete_fields = ["offer"]
     readonly_fields = ["recorded_at"]
+
+
+@admin.register(ProductSubscription)
+class ProductSubscriptionAdmin(admin.ModelAdmin):
+    list_display = [
+        "user",
+        "product",
+        "notify_at",
+        "is_active",
+        "last_notified_at",
+        "created_at",
+    ]
+    list_filter = ["is_active", "created_at"]
+    search_fields = ["user__email", "product__name"]
+    autocomplete_fields = ["user", "product"]
+    readonly_fields = ["created_at", "last_notified_at"]
