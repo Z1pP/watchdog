@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 
 
@@ -106,4 +107,56 @@ class PriceHistory(models.Model):
                 fields=["offer", "recorded_at"],
                 name="product_pricehist_offer_dt",
             ),
+        ]
+
+
+class ProductSubscription(models.Model):
+    user = models.ForeignKey(
+        to=settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="product_subscriptions",
+        verbose_name="Пользователь",
+    )
+    product = models.ForeignKey(
+        to=Product,
+        on_delete=models.CASCADE,
+        related_name="subscriptions",
+        verbose_name="Продукт",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    notify_at = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        verbose_name="Пороговая цена",
+        help_text="Уведомление будет отправлено, если цена продукта упадет ниже этого значения",
+        null=True,
+        blank=True,
+    )
+    is_active = models.BooleanField(
+        default=True,
+        verbose_name="Активна",
+    )
+    last_notified_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name="Последнее уведомление",
+    )
+    notify_cooldown_hours = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        verbose_name="Минимум часов между уведомлениями",
+    )
+
+    def __str__(self):
+        return f"{self.user.email} — {self.product.name}"
+
+    class Meta:
+        verbose_name = "Подписка на продукт"
+        verbose_name_plural = "Подписки на продукты"
+        ordering = ["-created_at"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "product"],
+                name="unique_user_product",
+            )
         ]
